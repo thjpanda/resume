@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>唐辉杰 · 游戏策划简历</title>
+<style>
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#080c1a;color:#c8d4e0}
+body{overscroll-behavior:none}
+
+/* ===== Canvas BG ===== */
+#starfield{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ===== Page Container ===== */
+.pages-container{position:fixed;top:0;left:0;width:100vw;z-index:1;display:flex;flex-direction:column;
+  transition:transform .65s cubic-bezier(.22,.68,0,1)}
+.page{width:100vw;height:100vh;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:20px 20px 20px 200px}
+
+/* ===== Glass Card ===== */
+.page-card{position:relative;width:min(640px,85vw);max-height:88vh;overflow-y:auto;
+  background:rgba(13,21,40,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(0,212,255,.1);border-radius:18px;padding:36px 40px;
+  box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.04)}
+.card-inner{position:relative;z-index:2}
+
+/* ===== Cyber Corners ===== */
+.corner{position:absolute;width:22px;height:22px;z-index:3;pointer-events:none;
+  border-color:var(--accent,#00d4ff);border-style:solid;border-width:0;opacity:.5;
+  transition:opacity .5s}
+.corner-tl{top:10px;left:10px;border-top-width:2px;border-left-width:2px;border-radius:4px 0 0 0}
+.corner-tr{top:10px;right:10px;border-top-width:2px;border-right-width:2px;border-radius:0 4px 0 0}
+.corner-bl{bottom:10px;left:10px;border-bottom-width:2px;border-left-width:2px;border-radius:0 0 0 4px}
+.corner-br{bottom:10px;right:10px;border-bottom-width:2px;border-right-width:2px;border-radius:0 0 4px 0}
+
+/* ===== Left Timeline ===== */
+.timeline{position:fixed;left:32px;top:50%;z-index:20;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px}
+.timeline-track{position:absolute;left:5px;top:8px;bottom:8px;width:1.5px;
+  background:linear-gradient(to bottom,transparent,rgba(0,212,255,.2) 10%,rgba(0,212,255,.15) 90%,transparent)}
+.tl-item{display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 10px 5px 0;
+  border-radius:4px;transition:background .3s;position:relative}
+.tl-item:hover{background:rgba(0,212,255,.06)}
+.tl-dot{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.12);
+  flex-shrink:0;transition:all .4s;position:relative;z-index:2}
+.tl-item.active .tl-dot{background:#00d4ff;border-color:#00d4ff;box-shadow:0 0 12px rgba(0,212,255,.5),0 0 24px rgba(0,212,255,.15)}
+.tl-label{font-size:11.5px;color:#5a7a9a;white-space:nowrap;transition:color .3s;font-weight:400}
+.tl-label em{font-style:normal;font-weight:600;color:#4a6a8a;margin-right:4px;transition:color .3s}
+.tl-item.active .tl-label{color:#b0cce0}
+.tl-item.active .tl-label em{color:#00d4ff}
+
+/* ===== Page Content ===== */
+/* Hero */
+.avatar-ring{width:84px;height:84px;border-radius:50%;margin:0 auto 16px;
+  background:linear-gradient(135deg,var(--accent,#00d4ff),#4f6ef7);padding:3px}
+.avatar-img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+
+.hero-name{font-size:34px;font-weight:700;color:#e0f0ff;text-align:center;margin-bottom:3px;letter-spacing:2px}
+.hero-badge{display:table;margin:0 auto 14px;padding:3px 14px;border-radius:4px;font-size:11px;font-weight:500;
+  background:rgba(0,212,255,.08);color:var(--accent,#5ac8e0);border:1px solid rgba(0,212,255,.12)}
+.hero-summary{font-size:13px;line-height:1.75;color:#9aacc4;text-align:center;
+  padding:14px 0;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:12px}
+.hero-contact{display:grid;grid-template-columns:1fr 1fr;gap:5px 20px;font-size:12.5px;margin-bottom:14px}
+.hero-contact span{color:#8aa4c0}
+.skill-cloud{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.skill-cloud span{padding:3px 12px;border-radius:4px;font-size:11px;font-weight:500;
+  background:rgba(0,212,255,.06);color:#5ab8e0;border:1px solid rgba(0,212,255,.1)}
+
+/* Company Pages */
+.page-tag{display:inline-block;margin-bottom:8px;padding:2px 10px;border-radius:3px;
+  font-size:10px;font-weight:600;background:rgba(0,255,136,.08);color:#00c878;border:1px solid rgba(0,255,136,.15)}
+.page-company{font-size:25px;font-weight:700;color:#e0f0ff;margin-bottom:2px}
+.page-role{font-size:13.5px;color:#5a8aaa;margin-bottom:8px}
+.page-project{font-size:15px;font-weight:600;color:var(--accent,#00d4ff);margin-bottom:1px}
+.page-proj-sub{font-size:12px;color:#5a7a9a;margin-bottom:10px}
+.page-list{padding:0;list-style:none;margin-bottom:10px}
+.page-list li{padding:4px 0 4px 16px;font-size:12.5px;color:#aabccc;line-height:1.6;position:relative}
+.page-list li::before{content:'';position:absolute;left:0;top:11px;width:5px;height:5px;border-radius:50%;background:var(--accent,#00d4ff);opacity:.4}
+.page-tags{display:flex;flex-wrap:wrap;gap:5px}
+.page-tags span{padding:2px 9px;border-radius:3px;font-size:10.5px;background:rgba(0,212,255,.06);color:#5ab8e0;border:1px solid rgba(0,212,255,.1)}
+.page-link{font-size:11.5px;color:#5a7a9a;margin-top:8px}
+.page-link a{color:#5ab8e0;text-decoration:none;border-bottom:1px dotted rgba(90,184,224,.3)}
+
+/* Mini Blocks (Early Career) */
+.mini-block{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.mini-block:last-child{border-bottom:none;margin-bottom:4px}
+.mini-title{font-size:14px;font-weight:600;color:#d0dce8}
+.mini-role{font-size:11.5px;color:#5a7a9a;margin-bottom:3px}
+.mini-list li{font-size:11.5px;padding:2px 0 2px 14px;line-height:1.5}
+.mini-list li::before{top:8px;width:4px;height:4px}
+
+/* ===== Entry Animations ===== */
+.anm-title,.anm-sub,.anm-delay-1,.anm-delay-2,.anm-delay-3,.anm-delay-4{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.page.active .anm-title{opacity:1;transform:translateY(0);transition-delay:.05s}
+.page.active .anm-sub{opacity:1;transform:translateY(0);transition-delay:.12s}
+.page.active .anm-delay-1{opacity:1;transform:translateY(0);transition-delay:.2s}
+.page.active .anm-delay-2{opacity:1;transform:translateY(0);transition-delay:.3s}
+.page.active .anm-delay-3{opacity:1;transform:translateY(0);transition-delay:.4s}
+.page.active .anm-delay-4{opacity:1;transform:translateY(0);transition-delay:.5s}
+
+/* ===== Scrollbar ===== */
+.page-card::-webkit-scrollbar{width:3px}
+.page-card::-webkit-scrollbar-track{background:transparent}
+.page-card::-webkit-scrollbar-thumb{background:#1a3a6a;border-radius:2px}
+
+/* ===== Responsive ===== */
+@media(max-width:900px){
+  .timeline{left:14px}
+  .tl-label{font-size:10px}
+  .tl-label em{font-size:10px}
+  .tl-dot{width:9px;height:9px}
+  .page{padding:16px 16px 16px 100px}
+  .page-card{padding:24px 20px}
+}
+@media(max-width:600px){
+  .timeline{left:8px;gap:4px}
+  .tl-label{display:none}
+  .tl-item{width:20px;padding:4px 0}
+  .timeline-track{left:9px}
+  .tl-dot{width:8px;height:8px}
+  .page{padding:12px 12px 12px 40px}
+  .page-card{padding:20px 16px;border-radius:12px}
+  .hero-name{font-size:26px}
+  .hero-contact{grid-template-columns:1fr}
+  .page-company{font-size:20px}
+  .corner{width:16px;height:16px}
+}
+
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- ===== 左侧时间轴 ===== -->
+<nav class="timeline" id="timeline">
+  <div class="timeline-track"></div>
+  <div class="tl-item active" data-page="0"><span class="tl-dot"></span><span class="tl-label">✦ 个人信息</span></div>
+  <div class="tl-item" data-page="1"><span class="tl-dot"></span><span class="tl-label"><em>2026</em> 光速未来</span></div>
+  <div class="tl-item" data-page="2"><span class="tl-dot"></span><span class="tl-label"><em>2025</em> 零式科技</span></div>
+  <div class="tl-item" data-page="3"><span class="tl-dot"></span><span class="tl-label"><em>2024</em> 石开科技</span></div>
+  <div class="tl-item" data-page="4"><span class="tl-dot"></span><span class="tl-label"><em>2023</em> 不妨游戏</span></div>
+  <div class="tl-item" data-page="5"><span class="tl-dot"></span><span class="tl-label"><em>2022</em> 苏河猫岸</span></div>
+  <div class="tl-item" data-page="6"><span class="tl-dot"></span><span class="tl-label"><em>2018-21</em> 早期经历</span></div>
+</nav>
+
+<!-- ===== 页面容器 ===== -->
+<div id="pages" class="pages-container">
+
+  <!-- Page 1: 个人信息 -->
+  <section class="page" data-page="0" data-color="#00d4ff">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <div class="avatar-ring"><img class="avatar-img" src="_唐辉杰_证件照.png" alt="唐辉杰"></div>
+        <h1 class="anm-title">唐辉杰</h1>
+        <p class="anm-sub">游戏策划 / 高级产品策划</p>
+        <div class="anm-delay-1 hero-badge">厦门 · 15K-16K · 随时到岗</div>
+        <div class="anm-delay-2 hero-summary">8 年游戏行业经验，具备从 0 到 1 搭建战斗系统的完整能力闭环：战斗框架设计 / 数值体系搭建 / 技能编辑器落地 / 配置表架构 / 版本管理。横跨 MMORPG、ARPG、卡牌养成、模拟经营、VR 多人对战、线下赛事产品等多个品类。</div>
+        <div class="anm-delay-3 hero-contact">
+          <span>✉ wwwtanghuijie@vip.qq.com</span>
+          <span>📞 18859154070</span>
+          <span>📍 福建漳州 · 厦门</span>
+          <span>🎓 福建师范大学 · 软件工程 本科</span>
+        </div>
+        <div class="anm-delay-4 skill-cloud">
+          <span>战斗系统全栈</span><span>VR/线下产品设计</span><span>产品策划 PRD</span>
+          <span>多品类经验</span><span>编辑器工具链</span><span>配置表工程</span>
+          <span>数值策划</span><span>团队管理</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 2: 光速未来 -->
+  <section class="page" data-page="1" data-color="#00d4ff">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <div class="anm-delay-0 page-tag current-tag">▸ 当前在职</div>
+        <h2 class="anm-title page-company">光速未来科技有限公司</h2>
+        <p class="anm-sub page-role">高级产品策划 · 2026.05 - 至今</p>
+        <div class="anm-delay-1 page-project">《竞技大空间》(VR 多人对战)</div>
+        <p class="anm-delay-1 page-proj-sub">3 款子游戏：烈焰拳王 / 疾速冰球 / 雷霆击剑</p>
+        <ul class="anm-delay-2 page-list">
+          <li>独立撰写《战斗规则》《反馈优化》《特效与动画规范》3 份核心策划案，覆盖 8 区域打击判定、格挡护盾系统、连招机制及 VR/投屏两端三层反馈链路</li>
+          <li>输出《LumiSport 小程序需求策划案》(14 模块+120+测试用例)，包含用户端/管理员端全流程与门店级数据隔离</li>
+          <li>设计主动报名与匹配报名双模式、一键补位匹配算法、竞猜时间限制、投屏实时支持度进度条</li>
+          <li>为 3 款 VR 游戏设计独立热身教学流程（拳王 8 步法/冰球 4 步法/击剑 4 步法）</li>
+          <li>规划烈焰拳王 6 组技能音效（含男女角色连招配音），整理音效资源与动画 Trigger 对齐</li>
+          <li>主导《Lumi 竞技大空间体验软件》《小程序》2 项软件著作权申报材料准备</li>
+          <li>使用 OpenClaw、Cursor 等 AI 工具辅助策划文档撰写、代码调试与原型验证，提升策划侧工作效率</li>
+        </ul>
+        <div class="anm-delay-4 page-tags"><span>VR游戏</span><span>产品策划</span><span>战斗设计</span><span>小程序</span><span>线下体验</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 3: 零式科技 -->
+  <section class="page" data-page="2" data-color="#4f6ef7">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <h2 class="anm-title page-company">零式科技有限公司</h2>
+        <p class="anm-sub page-role">主策划 · 2025.05 - 2025.11</p>
+        <div class="anm-delay-1 page-project">《云宠大陆》(模拟经营) + 线上社区</div>
+        <ul class="anm-delay-2 page-list">
+          <li>基于养宠人群用户画像和数据分析确定研发方向，协同把控美术风格</li>
+          <li>规划模拟经营、科技树、角色养成、抽卡、背包、苗圃等模块的经济循环与玩家成长路径</li>
+          <li>设计关卡结构、角色定位体系、技能系统、Buff 系统，基于 Luban 框架定义配置表结构</li>
+          <li>协同技术团队制作技能编辑器和地图编辑器</li>
+          <li>搭建养宠生活社区，确立「社区×用户×服务商」三方一体变现模式</li>
+        </ul>
+        <div class="anm-delay-4 page-tags"><span>模拟经营</span><span>主策划</span><span>线上线下联动</span><span>社区运营</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 4: 石开科技 -->
+  <section class="page" data-page="3" data-color="#7c3aed">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <h2 class="anm-title page-company">厦门石开科技有限公司</h2>
+        <p class="anm-sub page-role">主战斗策划 · 2023.11 - 2024.08</p>
+        <div class="anm-delay-1 page-project">《代号：街灯》(生存 ARPG)</div>
+        <ul class="anm-delay-2 page-list">
+          <li>确立「ACT 为核心、RPG 养成为辅」的战斗玩法定位</li>
+          <li>设计「基础技能+武器拓展技能」双层技能框架</li>
+          <li>主导技能编辑器需求定义与落地，与配置表协同呈现技能效果</li>
+          <li>制定轻量化数值框架，设计关卡与怪物并输出编辑器、配置表、美术需求</li>
+        </ul>
+        <div class="anm-delay-4 page-tags"><span>ARPG</span><span>战斗策划</span><span>技能编辑器</span><span>数值设计</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 5: 不妨游戏 -->
+  <section class="page" data-page="4" data-color="#f59e0b">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <h2 class="anm-title page-company">厦门不妨游戏科技有限公司</h2>
+        <p class="anm-sub page-role">主战斗策划 · 2022.11 - 2023.09</p>
+        <div class="anm-delay-1 page-project">《侠客传》(MMORPG 手游)</div>
+        <ul class="anm-delay-2 page-list">
+          <li>独立负责战斗系统从 0 到 1 全流程搭建</li>
+          <li>设计 4 个差异化职业技能树，产出约 100 只怪物设计案</li>
+          <li>搭建全套战斗配置表，主导技能/关卡编辑器需求设计与落地</li>
+          <li>设计战斗与养成/装备/Buff 系统的高效耦合</li>
+        </ul>
+        <div class="anm-delay-4 page-tags"><span>MMORPG</span><span>战斗系统 0→1</span><span>职业设计</span><span>编辑器</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 6: 苏河猫岸 -->
+  <section class="page" data-page="5" data-color="#10b981">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <h2 class="anm-title page-company">苏河猫岸</h2>
+        <p class="anm-sub page-role">主战斗策划 · 2021.08 - 2022.09</p>
+        <div class="anm-delay-1 page-project">《咏月风雅》(卡牌养成手游)</div>
+        <ul class="anm-delay-2 page-list">
+          <li>确立「AFK 自走棋+Roguelike」卡牌战斗玩法，建立完整战斗循环</li>
+          <li>设计落地 104 名玩法各异的角色，定位细致分化</li>
+          <li>制定 Roguelike 规则并制作大量副本，降低长线关卡疲劳感</li>
+          <li>设计战斗数值框架和战斗公式，优化表结构定义</li>
+          <li>在家园模块引入 AI 行为逻辑，提升角色个性化辨识度</li>
+        </ul>
+        <div class="anm-delay-4 page-tags"><span>卡牌养成</span><span>Roguelike</span><span>自走棋</span><span>数值设计</span></div>
+        <div class="anm-delay-4 page-link">项目链接：<a href="https://www.biligame.com/detail/?id=108261" target="_blank">bilibili 游戏中心</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 7: 早期经历 -->
+  <section class="page" data-page="6" data-color="#6b8a9a">
+    <div class="page-card">
+      <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+      <div class="card-inner">
+        <h2 class="anm-title page-company">早期职业经历</h2>
+        <div class="anm-delay-1 mini-block">
+          <div class="mini-title">广东快乐种子科技有限公司</div>
+          <div class="mini-role">儿童游戏策划负责人 · 2019.07 - 2021.07</div>
+          <ul class="page-list mini-list">
+            <li>对 Demo 课程进行游戏化重构，转化率从 10% 提升至 70%</li>
+            <li>编写可拓展的规范说明文档，协调多部门协作流程</li>
+            <li>参与英语、美术、编程等早教课程的游戏化设计</li>
+          </ul>
+        </div>
+        <div class="anm-delay-2 mini-block">
+          <div class="mini-title">上海月干网络科技有限公司</div>
+          <div class="mini-role">执行策划 / 战斗策划 · 2018.12 - 2019.06</div>
+          <ul class="page-list mini-list">
+            <li>独立负责 2 款休闲游戏玩法设计，共参与约 10 款休闲游戏制作</li>
+            <li>对手游养成线进行迭代优化，制定线上运营活动计划</li>
+            <li>设计对战手游角色技能和新手关卡</li>
+          </ul>
+        </div>
+        <div class="anm-delay-3 mini-block">
+          <div class="mini-title">上海夜光螺信息技术有限公司</div>
+          <div class="mini-role">游戏前端工程师 · 2018.06 - 2018.10</div>
+          <ul class="page-list mini-list">
+            <li>《翻滚吧脑汁君》微信小游戏：地图逻辑、寻路、物理效果、音乐游戏基础逻辑</li>
+          </ul>
+        </div>
+        <div class="anm-delay-4 page-tags"><span>教育游戏</span><span>执行策划</span><span>休闲游戏</span><span>前端开发</span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ===== Stars Background =====
+(function(){
+  var c = document.getElementById('starfield');
+  if(!c) return;
+  var ctx = c.getContext('2d');
+  var stars = [];
+  var flash = 0;
+  function resize(){c.width=window.innerWidth; c.height=window.innerHeight}
+  function init(){stars=[]; for(var i=0;i<150;i++) stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+0.2,a:Math.random()*0.5+0.3,s:Math.random()*0.005+0.002})}
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    var t = Date.now();
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      var alpha = s.a*(0.7+0.3*Math.sin(t*s.s));
+      if(flash>0) alpha = Math.min(1, alpha+flash);
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(160,200,255,'+alpha+')';
+      ctx.fill();
+    }
+    if(flash>0) flash-=0.03;
+  }
+  resize(); init();
+  setInterval(draw, 60);
+  window.addEventListener('resize',function(){resize();init()});
+  window.starFlash=function(){flash=0.4};
+})();
+
+// ===== Page Turning =====
+var container = document.getElementById('pages');
+var totalPages = document.querySelectorAll('.page').length;
+var currentPage = 0;
+var isAnimating = false;
+
+function updateUI(){
+  // Timeline dots
+  var items = document.querySelectorAll('.tl-item');
+  for(var i=0;i<items.length;i++){
+    items[i].classList.toggle('active', i===currentPage);
+  }
+  // Page active class (for entry animations)
+  var pages = document.querySelectorAll('.page');
+  for(var i=0;i<pages.length;i++){
+    pages[i].classList.toggle('active', i===currentPage);
+  }
+  // Per-page accent color
+  var activePage = pages[currentPage];
+  var color = activePage ? activePage.dataset.color : '#00d4ff';
+  document.querySelectorAll('.page-card').forEach(function(card){
+    card.style.setProperty('--accent', color);
+  });
+  document.querySelectorAll('.corner').forEach(function(c){
+    c.style.borderColor = color;
+  });
+}
+
+function goTo(page){
+  if(page === currentPage || isAnimating) return;
+  if(page < 0) page = 0;
+  if(page >= totalPages) page = totalPages - 1;
+  if(page === currentPage) return;
+  isAnimating = true;
+  currentPage = page;
+  container.style.transform = 'translateY(-' + (currentPage * 100) + 'vh)';
+  // Star flash
+  if(window.starFlash) window.starFlash();
+  updateUI();
+  setTimeout(function(){ isAnimating = false; }, 680);
+}
+
+// ===== Timeline Nav Click =====
+document.querySelectorAll('.tl-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    goTo(parseInt(this.dataset.page));
+  });
+});
+
+// ===== Mouse Wheel =====
+var wheelTimeout;
+document.addEventListener('wheel', function(e){
+  e.preventDefault();
+  if(isAnimating) return;
+  clearTimeout(wheelTimeout);
+  wheelTimeout = setTimeout(function(){
+    if(e.deltaY > 0) goTo(currentPage + 1);
+    else goTo(currentPage - 1);
+  }, 80);
+}, {passive:false});
+
+// ===== Touch / Drag =====
+var touchStartY = 0;
+var isDragging = false;
+document.addEventListener('touchstart', function(e){
+  touchStartY = e.changedTouches[0].screenY;
+  isDragging = true;
+}, {passive:true});
+document.addEventListener('touchend', function(e){
+  if(!isDragging) return;
+  isDragging = false;
+  var dy = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(dy) > 40){
+    if(dy < 0) goTo(currentPage + 1);
+    else goTo(currentPage - 1);
+  }
+}, {passive:true});
+
+// ===== Keyboard =====
+document.addEventListener('keydown', function(e){
+  if(e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') goTo(currentPage + 1);
+  if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') goTo(currentPage - 1);
+});
+
+// ===== Init =====
+updateUI();
+
+</script>
+</body>
+</html>
