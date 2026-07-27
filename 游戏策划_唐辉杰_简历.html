@@ -194,6 +194,26 @@ body{overscroll-behavior:none}
 .pg-dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,.08)}
 .pg-dot.active{background:var(--accent,#00d4ff);width:16px;border-radius:2px}
 @media(max-width:600px){.panel-grid{grid-template-columns:1fr}}
+.status-panel{margin-bottom:12px;border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:8px 10px;background:rgba(0,212,255,.03)}
+.panel-title{font-size:10px;font-weight:600;color:var(--accent,#5ac8e0);margin-bottom:6px;letter-spacing:1px}
+.panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px}
+.stat-row{display:flex;align-items:center;gap:3px;padding:2px 0}
+.stat-icon{font-size:12px;width:18px;text-align:center;flex-shrink:0}
+.stat-name{font-size:9px;color:#8aa4c0;width:44px;flex-shrink:0}
+.stat-hp{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.stat-hp-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent,#00d4ff),#4f6ef7)}
+.stat-val{font-size:9px;font-weight:600;color:var(--accent,#5ac8e0);width:26px;text-align:right;flex-shrink:0}
+.page-company{position:relative;display:inline-block}
+.page-company::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--accent,#00d4ff),transparent);border-radius:1px;transition:width .6s ease}
+.page.active .page-company::after{width:100%}
+.page-list li{padding:4px 0 4px 18px;border-left:1px solid transparent;transition:all .3s}
+.page-list li:hover{border-left-color:rgba(0,212,255,.3);padding-left:22px;background:rgba(0,212,255,.02)}
+.page-list li::before{left:0;top:10px;width:5px;height:5px;opacity:0;transition:all .3s}
+.page-list li:hover::before{opacity:.5}
+.mini-block{padding:10px 12px;border-radius:6px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.02);margin-bottom:8px}
+.mini-block:hover{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.04)}
+.mini-title{display:flex;align-items:center;gap:6px}
+@media(max-width:600px){.panel-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -203,6 +223,7 @@ body{overscroll-behavior:none}
 <!-- ===== 左侧时间轴 ===== -->
 <nav class="timeline" id="timeline">
   <div class="timeline-track"></div>
+          <div class="status-panel"><div class="panel-title">📊 角色属性</div><div class="panel-grid"><div class="stat-row"><span class="stat-icon">🗡️</span><span class="stat-name">战斗经验</span><div class="stat-hp"><div class="stat-hp-fill" style="width:95%"></div></div><span class="stat-val">95%</span></div><div class="stat-row"><span class="stat-icon">🏢</span><span class="stat-name">公司经历</span><div class="stat-hp"><div class="stat-hp-fill" style="width:85%"></div></div><span class="stat-val">85%</span></div><div class="stat-row"><span class="stat-icon">🎮</span><span class="stat-name">产品广度</span><div class="stat-hp"><div class="stat-hp-fill" style="width:90%"></div></div><span class="stat-val">90%</span></div><div class="stat-row"><span class="stat-icon">🥽</span><span class="stat-name">VR专精</span><div class="stat-hp"><div class="stat-hp-fill" style="width:80%"></div></div><span class="stat-val">80%</span></div><div class="stat-row"><span class="stat-icon">📜</span><span class="stat-name">项目管理</span><div class="stat-hp"><div class="stat-hp-fill" style="width:78%"></div></div><span class="stat-val">78%</span></div><div class="stat-row"><span class="stat-icon">🎯</span><span class="stat-name">团队领导</span><div class="stat-hp"><div class="stat-hp-fill" style="width:75%"></div></div><span class="stat-val">75%</span></div></div></div>
   <div class="tl-item active" data-page="0"><span class="tl-dot"></span><span class="tl-label">✦ 个人信息</span></div>
   <div class="tl-item" data-page="1"><span class="tl-dot"></span><span class="tl-label"><em>2026</em> 光速未来</span></div>
   <div class="tl-item" data-page="2"><span class="tl-dot"></span><span class="tl-label"><em>2025</em> 零式科技</span></div>
